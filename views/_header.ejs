@@ -1,0 +1,13 @@
+
+  <h1><a href="/">Render Deployment Guide</a></h1>
+  <nav>
+    <a href="/check-db">Check DB</a>
+    <% if (isLoggedIn) { %>
+      <p>Logged in as <%= currentUser.email %></p>
+      <form action="/logout?_method=delete" method="post">
+        <button>Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/login">Login</a>
+    <% } %>
+  </nav>

@@ -1,0 +1,146 @@
+
+
+<div class="wrapper">
+  <h2>Deploying on Render</h2>
+
+  <p>Follow these steps to deploy your project on Render:</p>
+
+  <h3>Initial Setup</h3>
+  <ol>
+    <li>Ensure your project is not inside another git repo.</li>
+    <li>Create a <code>.gitignore</code> file in your project root with the following content:</li>
+    <pre><code>.DS_Store
+*.log
+*.sqlite
+node_modules
+.swp
+.env
+tmp
+</code></pre>
+    <li>Create a <code>.env</code> file in your root with the following content (update the database name as necessary):</li>
+    <pre><code>DATABASE_URL='postgresql://localhost:5432/goodfoodhunting'
+SESSION_SECRET='mistyrose'
+</code></pre>
+  </ol>
+
+  <h3>Environmental Variables</h3>
+  <ol>
+    <li>Ensure your database environmental variables are set up.</li>
+    <li>Update your <code>server.js</code> file with the following content:</li>
+    <pre><code>const port = process.env.PORT || 3000;
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "mistyrose",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+</code></pre>
+    <li>To start your application in the production environment, update your <code>package.json</code> file's "scripts" section:</li>
+    <pre><code>{
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  }
+}
+</code></pre>
+  </ol>
+  <h3>Creating a PostgreSQL Database on Render</h3>
+  <ol>
+    <li>In the navigation bar, click <strong>New</strong> > <strong>PostgreSQL</strong>.</li>
+    <img src="/assets/images/psql_create_service.png" alt="Render Page Screenshot" srcset="">
+    <a href="https://dashboard.render.com/new/database">Reder New PSQL Service</a>
+    <li>Fill in the required fields:
+      <ul>
+        <li><strong>Name</strong>: Your PostgreSQL database name</li>
+        <li>Select the appropriate region as per your web service region.</li>
+        <li><strong>PostgreSQL Version</strong>: 15</li>
+        <li>Select the <strong>Free</strong> instance.</li>
+        <img src="/assets/images/psql_free_service.png" alt="Render Page Screenshot" srcset="">
+      </ul>
+    </li>
+    <li>Create the Database. It will take a while for the database to be created. Be patient and feel free to whistle a tune. Once done service status will be <strong>Available</strong>
+    </li>
+    <img src="/assets/images/psql_service_status.png" alt="Render Page Screenshot" srcset="">
+  </ol>
+
+  <h3>Accessing Your PostgreSQL Database Details</h3>
+  <ol>
+    <li>Go to your <strong>Dashboard</strong> and select your database.</li>
+    <li>Scroll down to <strong>Connections</strong>.</li>
+    <li>Copy the <strong>PSQL Command</strong> to access the database through your CLI/Terminal.</li>
+    <img src="/assets/images/psql_service_connections.png" alt="" srcset="">
+    <li>As your database would be empty initially, create the necessary tables as you did for your local PostgreSQL database.</li>
+    <li>Example:</li>
+    <pre>
+      <code>
+        CREATE TABLE IF NOT EXISTS students (
+          id SERIAL PRIMARY KEY,
+          first_name VARCHAR(50),
+          last_name VARCHAR(50)
+        );
+      </code>
+    </pre>
+    <img src="/assets/images/psql_terminal_create_table.png" alt="" srcset="">
+  </ol>
+
+  <h3>Connecting Your PostgreSQL Database to Your Web Service App</h3>
+  <ol>
+    <li>In your PostgreSQL info page, copy the <strong>Internal Database URL</strong>.</li>
+    <img src="/assets/images/psql_internal_db_URL.png" alt="" srcset="">
+    <li>Go to your <strong>Dashboard</strong> and select your Web Service.</li>
+    <li>On the sidebar, click <strong>Environment</strong>.</li>
+    <li>Select <strong>Add Environment Variable</strong>.</li>
+    <li>Add the following:
+      <ul>
+        <li><strong>Key</strong>: <code>DATABASE_URL</code></li>
+        <li><strong>Value</strong>: Paste the <strong>Internal Database URL</strong></li>
+        <li><strong>Key</strong>: <code>SESSION_SECRET</code></li>
+        <li><strong>Value</strong>: Your session secret value</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h3>Creating a Web Service</h3>
+  <ol>
+    <li>Go to <a href="https://render.com/">Render</a> and sign up.</li>
+    <li>Log in and click <strong>New</strong> > <strong>Web Service</strong>.</li>
+    <li>On the <strong>Create a new Web Service</strong> page, connect your repository from the list if your Render account is linked to your GitHub account.</li>
+    <img src="/assets/images/webservice_build_from_repo.png" alt="" srcset="">
+    <li>If your GitHub account is not linked, provide the public Git repository URL in the <strong>Public Git repository</strong> section.</li>
+    <img src="/assets/images/git_repo_URL.png" alt="" srcset="">
+    <br />
+    <img src="/assets/images/webservice_public_git_repo.png" alt="" srcset="">
+    <li>Fill in the required fields:
+      <ul>
+        <li><strong>Name</strong>: Your app name</li>
+        <li><strong>Region</strong>: Your location</li>
+        <li><strong>Runtime</strong>: Node</li>
+        <li><strong>Build Command</strong>: <code>npm install</code></li>
+        <li><strong>Start Command</strong>: <code>npm start</code></li>
+        <img src="/assets/images/webservice_start_command.png" alt="" srcset="">
+        <li>Select the <strong>Free</strong> instance.</li>
+        <li>Scroll down to <strong>Environment Variables</strong> section.
+          Put down  <code>DATABASE_URL</code> and <code>SESSION_SECRET</code> as the key and value respectively.
+        </li>
+        <li>Put the <strong>Internal Database URL</strong> coppied from your DB instance</li>
+        <li>Use the generate button to autogenerade the 
+          SECRET_SESSION value
+        </li>
+        <img src="/assets/images/env_variables.png" alt="" srcset="">
+      </ul>
+    </li>
+    <li>Create the Web Service.</li>
+  </ol>
+
+  <h3>Future Deployments and Updates</h3>
+  <p>For future updates to your app:</p>
+  <ul>
+    <li>Database: Run the psql connection string to connect to the production database and execute additional SQL commands as needed.</li>
+    <li>Source Code: Push your code to GitHub to auto-deploy on Render. If it doesn't auto-deploy, select <strong>manual deploy</strong> on Render's dashboard.</li>
+  </ul>
+
+  <h3>Troubleshooting</h3>
+  <p>Click <strong>logs</strong> in your Render app's dashboard to see any errors that have occurred.</p>
+</div>
